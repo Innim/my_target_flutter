@@ -1,35 +1,56 @@
 package com.example.my_target_flutter
 
-import androidx.annotation.NonNull
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.BasicMessageChannel
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.StringCodec
+
 
 /** MyTargetFlutterPlugin */
-class MyTargetFlutterPlugin: FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
-
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "my_target_flutter")
-    channel.setMethodCallHandler(this)
-  }
-
-  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
+class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
+    companion object {
+        private const val  CHANNEL_NAME = "my_target_flutter"
+        private const val AD_LISTENER_CHANNEL_NAME = "my_target_flutter/ad_listener"
     }
-  }
 
-  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
-  }
+
+    private lateinit var adListenerChannel:BasicMessageChannel<String>
+    private  lateinit var dartChannel: MethodChannel
+
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        val messenger: BinaryMessenger = binding.binaryMessenger
+         dartChannel = MethodChannel(
+            messenger,
+            CHANNEL_NAME,
+        )
+         val context = binding.applicationContext
+         adListenerChannel = BasicMessageChannel(
+            messenger, AD_LISTENER_CHANNEL_NAME, StringCodec.INSTANCE)
+         val methodCallHandler = MethodCallHandler(context, adListenerChannel)
+        dartChannel.setMethodCallHandler(methodCallHandler)
+
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        dartChannel.setMethodCallHandler(null)
+        adListenerChannel.setMessageHandler(null)
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    }
+
+    override fun onDetachedFromActivity() {
+    }
+
+
 }

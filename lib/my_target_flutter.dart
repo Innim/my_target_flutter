@@ -1,13 +1,4 @@
+library my_target_flutter;
 
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-
-class MyTargetFlutter {
-  static const MethodChannel _channel = MethodChannel('my_target_flutter');
-
-  static Future<String?> get platformVersion async {
-    final String? version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
-}
+export 'package:my_target_flutter/src/ad_listener.dart';
+export 'package:my_target_flutter/src/my_target_flutter.dart';
