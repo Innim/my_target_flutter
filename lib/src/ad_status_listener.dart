@@ -1,21 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
-class AdStatusListener {
-  final VoidCallback onAdLoaded;
-  final VoidCallback onNoAd;
-  final VoidCallback onClickOnAD;
-  final VoidCallback onDisplay;
-  final VoidCallback onDismiss;
-  final VoidCallback onVideoCompleted;
-
-  const AdStatusListener(
-      {required this.onAdLoaded,
-      required this.onClickOnAD,
-      required this.onDismiss,
-      required this.onDisplay,
-      required this.onNoAd,
-      required this.onVideoCompleted});
+abstract class AdStatusListener {
+  const AdStatusListener();
 
   static const _listenChannelName = 'my_target_flutter/ad_listener';
 
@@ -32,6 +18,18 @@ class AdStatusListener {
 
     channel.setMessageHandler((message) => _handleMassage(message));
   }
+
+  void onAdLoaded();
+
+  void onNoAd();
+
+  void onClickOnAD();
+
+  void onDisplay();
+
+  void onDismiss();
+
+  void onVideoCompleted();
 
   Future<String> _handleMassage(String? massage) async {
     switch (massage) {

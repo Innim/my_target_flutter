@@ -18,8 +18,7 @@ class MyTargetFlutter {
   }
 
   Future<void> load() async {
-    final res = await _channel.invokeMethod(_load);
-    print('my_target: $res');
+    await _channel.invokeMethod(_load);
   }
 
   Future<void> show() async {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,13 +27,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
-    adListener = AdStatusListener(
-        onAdLoaded: _onAdLoaded,
-        onClickOnAD: _onClickOnAd,
-        onDismiss: _onDismiss,
-        onDisplay: _onDisplay,
-        onNoAd: _onNoAD,
-        onVideoCompleted: _onVideoCompleted);
+    adListener = AdListener(widget.plugin);
     adListener.listen();
   }
 
@@ -41,9 +36,10 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      await widget.plugin.initialise(6896, true,
-          testDevises: 'd55a1700-7f0f-4115-aea8-9a3e1b3501a0');
-    } on PlatformException {}
+      await widget.plugin.initialise(6896, true);
+    } on PlatformException {
+      log('inititalisation failed');
+    }
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -77,18 +73,38 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+}
 
-  void _onAdLoaded() {
-    widget.plugin.show();
+class AdListener extends AdStatusListener {
+  final MyTargetFlutter plugin;
+  const AdListener(this.plugin);
+  @override
+  void onAdLoaded() {
+    plugin.show();
   }
 
-  void _onClickOnAd() {}
+  @override
+  void onClickOnAD() {
+    // TODO: implement onClickOnAD
+  }
 
-  void _onDismiss() {}
+  @override
+  void onDismiss() {
+    // TODO: implement onDismiss
+  }
 
-  void _onDisplay() {}
+  @override
+  void onDisplay() {
+    // TODO: implement onDisplay
+  }
 
-  void _onNoAD() {}
+  @override
+  void onNoAd() {
+    // TODO: implement onNoAd
+  }
 
-  void _onVideoCompleted() {}
+  @override
+  void onVideoCompleted() {
+    // TODO: implement onVideoCompleted
+  }
 }
