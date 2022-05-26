@@ -26,8 +26,12 @@ class MethodCallHandler(private val context: Context, private val adListenerChan
         when (call.method) {
             INITIAL -> {
                 val data = InitialData.fromArgs(call)
-                if (data.slotId != null)
-                    initAd(context, data.slotId, data.useDebugMode ?: false, data.testDevises)
+                if (data.slotId != null) {
+                    val res =
+                        initAd(context, data.slotId, data.useDebugMode ?: false, data.testDevises)
+                    if(res) result.success(res)
+                    else result.error("[my_target_flutter]", " can not initialise", null)
+                }
             }
             LOAD -> load(result)
             SHOW -> show(result)
@@ -35,23 +39,27 @@ class MethodCallHandler(private val context: Context, private val adListenerChan
 
     }
 
-    private fun initAd(context: Context, slotId: Int, useDebugMode: Boolean, testDevises: String?) {
-        MyTargetManager.initSdk( context)
-        MyTargetManager.setDebugMode(useDebugMode)
-        val configBuilder = MyTargetConfig.Builder().withTestDevices(testDevises).build()
-        MyTargetManager.setSdkConfig(configBuilder)
-        ad = InterstitialAd(slotId, context)
-        val listener = AdListener(adListenerChannel)
-        ad.setListener(listener)
-
+    private fun initAd(context: Context, slotId: Int, useDebugMode: Boolean, testDevises: String?): Boolean {
+       try {
+           MyTargetManager.initSdk( context)
+           MyTargetManager.setDebugMode(useDebugMode)
+           val configBuilder = MyTargetConfig.Builder().withTestDevices(testDevises).build()
+           MyTargetManager.setSdkConfig(configBuilder)
+           ad = InterstitialAd(slotId, context)
+           val listener = AdListener(adListenerChannel)
+           ad.setListener(listener)
+       } catch (e: Exception) {
+           return false
+       }
         isInitialised = true
+        return true
     }
 
     private fun load(result: MethodChannel.Result) {
         if(isInitialised) {
             ad.load()
 
-            result.success("try load ad: ${getCurrentDate()}")
+            result.success(true)
         } else {
             result.error("Ad not initialised", null, null)
         }
@@ -60,16 +68,11 @@ class MethodCallHandler(private val context: Context, private val adListenerChan
     private fun show(result: MethodChannel.Result) {
         if(isInitialised) {
             ad.show()
-            result.success("try show ad: ${getCurrentDate()}")
+            result.success(true)
         } else {
             result.error("Ad not initialised", null, null)
         }
 
-    }
-
-    private fun getCurrentDate(): String {
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-        return sdf.format(Date())
     }
 
     data class InitialData(
