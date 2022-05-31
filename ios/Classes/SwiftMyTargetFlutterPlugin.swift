@@ -18,12 +18,25 @@ enum CreateInterstitialAdArg: String {
 }
 
 public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
+    private var dispatcher: AdDispatcher!
     private var ads: [String: MTRGInterstitialAd] = [:]
+        
+    var viewController: UIViewController? {
+        get {
+            return UIApplication.shared.delegate?.window??.rootViewController
+        }
+    }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "my_target_flutter", binaryMessenger: registrar.messenger())
         let instance = SwiftMyTargetFlutterPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+    
+    public override init() {
+        super.init()
+        let controller = viewController as! FlutterViewController
+        dispatcher = AdDispatcher(controller: controller)
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -34,12 +47,12 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
         
         switch (method) {
         case .initialize:
-             guard
+            guard
                 let args = call.arguments as? [String: Any],
                 let useDebugMode = args[InitializeArg.useDebugMode.rawValue] as? Bool
-                else {
-                    result(FlutterError.invalidArgs())
-                    return
+            else {
+                result(FlutterError.invalidArgs())
+                return
             }
             
             let testDevices = args[InitializeArg.testDevices.rawValue] as? [String]
@@ -48,26 +61,26 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
             guard
                 let args = call.arguments as? [String: Any],
                 let slotId = args[CreateInterstitialAdArg.slotId.rawValue] as? UInt
-                else {
-                    result(FlutterError.invalidArgs())
-                    return
+            else {
+                result(FlutterError.invalidArgs())
+                return
             }
             
             createInterstitialAd(result: result, slotId: slotId)
         case .load:
             guard
                 let adUid = call.arguments as? String
-                else {
-                    result(FlutterError.invalidArgs())
-                    return
+            else {
+                result(FlutterError.invalidArgs())
+                return
             }
             load(result: result, adUid: adUid)
         case .show:
             guard
                 let adUid = call.arguments as? String
-                else {
-                    result(FlutterError.invalidArgs())
-                    return
+            else {
+                result(FlutterError.invalidArgs())
+                return
             }
             show(result: result, adUid: adUid)
         }
@@ -91,32 +104,117 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
         
         ads[uid] = ad
         
+        // XXX: weak reference
+        ad.delegate = InterstitialAdDelegate(dispatcher, uid)
+        
         result(uid)
     }
     
     private func load(result: @escaping FlutterResult, adUid: String) {
         guard
             let ad = ads[adUid]
-            else {
-                result(FlutterError.adsNotFound(adUid))
-                return
-            }
-            
-            ad.load()
+        else {
+            result(FlutterError.adsNotFound(adUid))
+            return
+        }
+        
+        ad.load()
     }
     
     private func show(result: @escaping FlutterResult, adUid: String) {
         guard
             let ad = ads[adUid]
-            else {
-                result(FlutterError.adsNotFound(adUid))
-                return
-            }
-            
-            let viewController = (UIApplication.shared.delegate?.window??.rootViewController)!
-            ad.show(with: viewController)
+        else {
+            result(FlutterError.adsNotFound(adUid))
+            return
+        }
+        
+        ad.show(with: viewController!)
     }
 }
+
+enum AdEvent: String {
+    case loaded = "ad_loaded",
+         noAd = "no_ad",
+         display = "ad_display",
+         click = "click_on_ad",
+         videoComplete = "ad_video_completed",
+         close = "ad_dismiss"
+}
+
+class AdDispatcher: NSObject, FlutterStreamHandler {
+    private let channel: FlutterEventChannel
+    private var sink: FlutterEventSink?
+    private var intents = [URL]()
+    
+    init(controller: FlutterViewController) {
+        channel = FlutterEventChannel(name: "my_target_flutter/ad_listener",
+                                      binaryMessenger: controller.binaryMessenger)
+        
+        super.init()
+        channel.setStreamHandler(self)
+    }
+    
+    func dispatch(uid: String, event: AdEvent, data: [String: Any]? = nil) {
+        if let events = sink {
+            var event: [String: Any] = ["event": event.rawValue, "uid": uid]
+            if data != nil {
+                event["data"] = data
+            }
+            
+            events(event)
+        }
+    }
+    
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        sink = events
+        return nil
+    }
+    
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        sink = nil
+        return nil
+    }
+}
+
+class InterstitialAdDelegate: NSObject, MTRGInterstitialAdDelegate {
+    private var dispatcher: AdDispatcher
+    private var uid: String
+    
+    init(_ dispatcher: AdDispatcher, _ uid: String) {
+        self.dispatcher = dispatcher
+        self.uid = uid
+    }
+
+    func onLoad(with interstitialAd: MTRGInterstitialAd) {
+        dispatcher.dispatch(uid: uid, event: AdEvent.loaded)
+    }
+    
+    func onNoAd(withReason reason: String, interstitialAd: MTRGInterstitialAd) {
+        dispatcher.dispatch(uid: uid, event: AdEvent.noAd, data: ["reason": reason])
+    }
+    
+    func onDisplay(with interstitialAd: MTRGInterstitialAd) {
+        dispatcher.dispatch(uid: uid, event: AdEvent.display)
+    }
+    
+    func onClick(with interstitialAd: MTRGInterstitialAd) {
+        dispatcher.dispatch(uid: uid, event: AdEvent.click)
+    }
+    
+    func onVideoComplete(with interstitialAd: MTRGInterstitialAd) {
+        dispatcher.dispatch(uid: uid, event: AdEvent.videoComplete)
+    }
+    
+    func onClose(with interstitialAd: MTRGInterstitialAd) {
+        dispatcher.dispatch(uid: uid, event: AdEvent.close)
+    }
+    
+//    func onLeaveApplication(with interstitialAd: MTRGInterstitialAd) {
+//        dispatcher.dispatch(uid: uid, event: AdEvent.)
+//    }
+}
+
 
 extension FlutterError {
     static func invalidArgs(_ message: String = "Arguments is invalid", details: Any? = nil) -> FlutterError {
