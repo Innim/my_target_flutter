@@ -63,7 +63,13 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
             }
             load(result: result, adUid: adUid)
         case .show:
-            show(result: result)
+            guard
+                let adUid = call.arguments as? String
+                else {
+                    result(FlutterError.invalidArgs())
+                    return
+            }
+            show(result: result, adUid: adUid)
         }
     }
     
@@ -99,8 +105,16 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
             ad.load()
     }
     
-    private func show(result: @escaping FlutterResult) {
-        // TODO:
+    private func show(result: @escaping FlutterResult, adUid: String) {
+        guard
+            let ad = ads[adUid]
+            else {
+                result(FlutterError.adsNotFound(adUid))
+                return
+            }
+            
+            let viewController = (UIApplication.shared.delegate?.window??.rootViewController)!
+            ad.show(with: viewController)
     }
 }
 
