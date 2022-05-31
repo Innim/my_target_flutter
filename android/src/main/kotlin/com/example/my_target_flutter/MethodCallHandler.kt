@@ -30,7 +30,7 @@ class MethodCallHandler(
         when (call.method) {
             INITIAL -> {
                 val data = InitialData.fromArgs(call)
-                initAd(context, data.slotId, data.useDebugMode ?: false, data.testDevises, result)
+                initAd(context, data.slotId, data.useDebugMode ?: false, data.testDevices, result)
 
             }
             LOAD -> load(result)
@@ -43,7 +43,7 @@ class MethodCallHandler(
         context: Context,
         slotId: Int?,
         useDebugMode: Boolean,
-        testDevises: String?,
+        testDevices: String?,
         result: MethodChannel.Result,
     ) {
         if (slotId == null) {
@@ -52,7 +52,7 @@ class MethodCallHandler(
             try {
                 MyTargetManager.initSdk(context)
                 MyTargetManager.setDebugMode(useDebugMode)
-                val configBuilder = MyTargetConfig.Builder().withTestDevices(testDevises).build()
+                val configBuilder = MyTargetConfig.Builder().withTestDevices(testDevices).build()
                 MyTargetManager.setSdkConfig(configBuilder)
                 ad = InterstitialAd(slotId, context)
                 val listener = AdListener(adListenerChannel)
@@ -89,14 +89,14 @@ class MethodCallHandler(
     data class InitialData(
         val slotId: Int?,
         val useDebugMode: Boolean?,
-        val testDevises: String?
+        val testDevices: String?
     ) {
         companion object {
             fun fromArgs(call: MethodCall): InitialData {
                 val slotId = call.argument<Int>("slotId")?.toInt()
                 val useDebugMode = call.argument<Boolean>("useDebugMode") ?: false
-                val testDevises = call.argument<String?>("testDevises")
-                return InitialData(slotId, useDebugMode, testDevises)
+                val testDevices = call.argument<String?>("testDevices")
+                return InitialData(slotId, useDebugMode, testDevices)
             }
         }
     }

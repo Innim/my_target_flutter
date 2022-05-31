@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      await widget.plugin.initialise(6896, true);
+      await widget.plugin.initialize(6896, true);
     } on PlatformException {
       log('inititalisation failed');
     }

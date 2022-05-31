@@ -7,9 +7,9 @@ abstract class AdStatusListener {
 
   static const _adLoaded = 'ad_loaded';
   static const _noAd = 'no_ad';
-  static const _clicOnAd = 'click_on_ad';
+  static const _clickOnAd = 'click_on_ad';
   static const _adDisplay = 'ad_display';
-  static const _adDisniss = 'ad_dismiss';
+  static const _adDismiss = 'ad_dismiss';
   static const _adVideoCompleted = 'ad_video_completed';
 
   void listen() {
@@ -39,13 +39,13 @@ abstract class AdStatusListener {
       case _noAd:
         onNoAd();
         break;
-      case _clicOnAd:
+      case _clickOnAd:
         onClickOnAD();
         break;
       case _adDisplay:
         onDisplay();
         break;
-      case _adDisniss:
+      case _adDismiss:
         onDismiss();
         break;
       case _adVideoCompleted:

@@ -11,10 +11,10 @@ class MyTargetFlutter {
   static const _load = 'load';
   static const _show = 'show';
 
-  Future<void> initialise(int slotId, bool useDebugMode,
-      {String? testDevises}) async {
+  Future<void> initialize(int slotId, bool useDebugMode,
+      {String? testDevices}) async {
     await _channel.invokeMethod(
-        _initial, _getInitialData(slotId, useDebugMode, testDevises));
+        _initial, _getInitialData(slotId, useDebugMode, testDevices));
   }
 
   Future<void> load() async {
@@ -26,11 +26,11 @@ class MyTargetFlutter {
   }
 
   Map<String, dynamic> _getInitialData(
-      int slotId, bool useDebugMode, String? testDevises) {
+      int slotId, bool useDebugMode, String? testDevices) {
     return <String, dynamic>{
       'slotId': slotId,
       'useDebugMode': useDebugMode,
-      'testDevises': testDevises,
+      'testDevices': testDevices,
     };
   }
 }
