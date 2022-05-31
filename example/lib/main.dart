@@ -10,7 +10,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  final plugin = MyTargetFlutter(isDebug: true);
+  final plugin = MyTargetFlutter();
 
   MyApp({
     Key? key,

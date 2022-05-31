@@ -10,6 +10,7 @@ class MyTargetFlutter {
 
   static const MethodChannel _channel = MethodChannel('my_target_flutter');
   static const _methodInitialize = 'initialize';
+  static const _methodCreateInterstitialAd = 'create_interstitial_ad';
   // static const _methodLoad = 'load';
   // static const _methodShow = 'show';
 
@@ -18,8 +19,9 @@ class MyTargetFlutter {
         _getInitialData(useDebugMode ?? isDebug, testDevices));
   }
 
-  Future<InterstitialAd> createInterstitialAd(int slotId) {
-    // TODO:
+  Future<InterstitialAd> createInterstitialAd(int slotId) async {
+    final id = await _channel.invokeMethod(_methodCreateInterstitialAd, slotId);
+    return InterstitialAd(id);
   }
 
   Future<void> _load(String uid) async {
