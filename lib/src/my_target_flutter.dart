@@ -2,35 +2,56 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import 'ad_status_listener.dart';
+
 class MyTargetFlutter {
   final bool isDebug;
   MyTargetFlutter({required this.isDebug});
 
   static const MethodChannel _channel = MethodChannel('my_target_flutter');
-  static const _initial = 'initial';
-  static const _load = 'load';
-  static const _show = 'show';
+  static const _methodInitialize = 'initialize';
+  // static const _methodLoad = 'load';
+  // static const _methodShow = 'show';
 
-  Future<void> initialize(int slotId, bool useDebugMode,
-      {String? testDevices}) async {
-    await _channel.invokeMethod(
-        _initial, _getInitialData(slotId, useDebugMode, testDevices));
+  Future<void> initialize({bool? useDebugMode, String? testDevices}) async {
+    await _channel.invokeMethod(_methodInitialize,
+        _getInitialData(useDebugMode ?? isDebug, testDevices));
   }
 
-  Future<void> load() async {
-    await _channel.invokeMethod(_load);
+  Future<InterstitialAd> createInterstitialAd(int slotId) {
+    // TODO:
   }
 
-  Future<void> show() async {
-    await _channel.invokeMethod(_show);
+  Future<void> _load(String uid) async {
+    // TODO: await _channel.invokeMethod(_load);
   }
 
-  Map<String, dynamic> _getInitialData(
-      int slotId, bool useDebugMode, String? testDevices) {
+  Future<void> _show(String uid) async {
+    // TODO: await _channel.invokeMethod(_show);
+  }
+
+  Map<String, dynamic> _getInitialData(bool useDebugMode, String? testDevices) {
     return <String, dynamic>{
-      'slotId': slotId,
       'useDebugMode': useDebugMode,
       'testDevices': testDevices,
     };
+  }
+}
+
+class InterstitialAd {
+  void load() {
+    // TODO
+  }
+
+  void show() {
+    // TODO
+  }
+
+  void addListener(AdStatusListener listener) {
+    // TODO
+  }
+
+  void removeListener(AdStatusListener listener) {
+    // TODO
   }
 }
