@@ -18,7 +18,7 @@ enum CreateInterstitialAdArg: String {
 }
 
 public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
-    private var ads: [String: MTRGBaseAd] = [:]
+    private var ads: [String: MTRGInterstitialAd] = [:]
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "my_target_flutter", binaryMessenger: registrar.messenger())
@@ -55,7 +55,13 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
             
             createInterstitialAd(result: result, slotId: slotId)
         case .load:
-            load(result: result)
+            guard
+                let adUid = call.arguments as? String
+                else {
+                    result(FlutterError.invalidArgs())
+                    return
+            }
+            load(result: result, adUid: adUid)
         case .show:
             show(result: result)
         }
@@ -75,15 +81,22 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
         let ad = MTRGInterstitialAd(slotId: slotId)
         
         let rnd = Int.random(in: 1000000..<10000000)
-        let id = "\(slotId)_\(rnd)"
+        let uid = "\(slotId)_\(rnd)"
         
-        ads[id] = ad
+        ads[uid] = ad
         
-        result(id)
+        result(uid)
     }
     
-    private func load(result: @escaping FlutterResult) {
-        // TODO:
+    private func load(result: @escaping FlutterResult, adUid: String) {
+        guard
+            let ad = ads[adUid]
+            else {
+                result(FlutterError.adsNotFound(adUid))
+                return
+            }
+            
+            ad.load()
     }
     
     private func show(result: @escaping FlutterResult) {
@@ -94,5 +107,9 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
 extension FlutterError {
     static func invalidArgs(_ message: String = "Arguments is invalid", details: Any? = nil) -> FlutterError {
         return FlutterError(code: "INVALID_ARGS", message: message, details: details);
+    }
+    
+    static func adsNotFound(_ uid: String, details: Any? = nil) -> FlutterError {
+        return FlutterError(code: "ADS_NOT_FOUND", message: "Ads with uid <\(uid)> not found", details: details);
     }
 }
