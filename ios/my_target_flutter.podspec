@@ -5,16 +5,18 @@
 Pod::Spec.new do |s|
   s.name             = 'my_target_flutter'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter project.'
+  s.summary          = 'Flutter myTarget SDK for iOS.'
   s.description      = <<-DESC
-A new Flutter project.
+Flutter myTarget SDK for iOS.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Innim' => 'developer@innim.org' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
+  s.static_framework = true
   s.dependency 'Flutter'
+  s.dependency 'myTargetSDK', '~> 5.15'
   s.platform = :ios, '9.0'
 
   # Flutter.framework does not contain a i386 slice.
