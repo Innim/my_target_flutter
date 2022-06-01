@@ -1,4 +1,4 @@
-package com.example.my_target_flutter
+package ru.innim.my_target_flutter
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -26,7 +26,8 @@ class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
         )
          val context = binding.applicationContext
          adListenerChannel = EventChannel(
-            messenger, AD_LISTENER_CHANNEL_NAME)
+            messenger, AD_LISTENER_CHANNEL_NAME
+         )
         adEventHandler = AdEventHandler()
         adListenerChannel.setStreamHandler(adEventHandler)
          val methodCallHandler = MethodCallHandler(context, adEventHandler!!)

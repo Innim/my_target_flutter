@@ -1,4 +1,4 @@
-package com.example.my_target_flutter
+package ru.innim.my_target_flutter
 
 import io.flutter.plugin.common.EventChannel
 

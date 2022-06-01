@@ -21,6 +21,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _plugin = MyTargetFlutter(isDebug: true);
   InterstitialAd? _ad;
+  var _adStatus = 'not created';
 
   @override
   void initState() {
@@ -53,7 +54,17 @@ class _MyAppState extends State<MyApp> {
                   _ad?.clearListeners();
 
                   final ad = _ad = await _plugin.createInterstitialAd(6896);
-                  ad.addListener(AdListener());
+                  final adListener = AdStatusListener(ad.uid,
+                      onAdLoaded: () => _changeAdStatus('Ad loaded'),
+                      onDisplay: () => _changeAdStatus('Ad display'),
+                      onClickOnAD: () => _changeAdStatus('Clicked on ad'),
+                      onVideoCompleted: () =>
+                          _changeAdStatus('Ad vodeo completed'),
+                      onDismiss: () => _changeAdStatus('Ad closed'),
+                      onNoAd: (reason) =>
+                          {_changeAdStatus('Ad not loaded: $reason')});
+                  ad.addListener(adListener);
+                  _changeAdStatus('Ad created');
                 },
               ),
               const SizedBox(height: 50),
@@ -78,6 +89,8 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               ),
+              const SizedBox(height: 50),
+              Text('Ad status: $_adStatus')
             ],
           ),
         ),
@@ -96,38 +109,10 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
-}
 
-class AdListener extends AdStatusListener {
-  AdListener();
-
-  @override
-  void onAdLoaded() {
-    // TODO: implement onAdLoaded
-  }
-
-  @override
-  void onClickOnAD() {
-    // TODO: implement onClickOnAD
-  }
-
-  @override
-  void onDismiss() {
-    // TODO: implement onDismiss
-  }
-
-  @override
-  void onDisplay() {
-    // TODO: implement onDisplay
-  }
-
-  @override
-  void onNoAd() {
-    // TODO: implement onNoAd
-  }
-
-  @override
-  void onVideoCompleted() {
-    // TODO: implement onVideoCompleted
+  void _changeAdStatus(String status) {
+    setState(() {
+      _adStatus = status;
+    });
   }
 }

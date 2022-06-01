@@ -1,6 +1,5 @@
-package com.example.my_target_flutter
+package ru.innim.my_target_flutter
 import com.my.target.ads.InterstitialAd
-import javax.security.auth.callback.Callback
 
 
 class AdListener(private val adEventHandler: AdEventHandler, private val id: String, private val onDone: (id:String) -> Unit) : InterstitialAd.InterstitialAdListener {
@@ -22,7 +21,7 @@ class AdListener(private val adEventHandler: AdEventHandler, private val id: Str
         onDone.invoke(id)
     }
     override fun onClick(ad: InterstitialAd) {
-        adEventHandler.sendAdEvent(id,ACTION_CLICK_ON_AD)
+        adEventHandler.sendAdEvent(id, ACTION_CLICK_ON_AD)
     }
     override fun onDisplay(ad: InterstitialAd) {
         adEventHandler.sendAdEvent(id, ACTION_AD_DISPLAY)
@@ -32,7 +31,7 @@ class AdListener(private val adEventHandler: AdEventHandler, private val id: Str
         onDone.invoke(id)
     }
     override fun onVideoCompleted(ad: InterstitialAd) {
-        adEventHandler.sendAdEvent(id,ACTION_AD_VIDEO_COMPLETED)
+        adEventHandler.sendAdEvent(id, ACTION_AD_VIDEO_COMPLETED)
     }
 
 }
