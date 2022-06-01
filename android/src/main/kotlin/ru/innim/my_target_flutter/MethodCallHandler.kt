@@ -3,7 +3,6 @@ package ru.innim.my_target_flutter
 import android.content.Context
 import com.my.target.common.MyTargetConfig
 import com.my.target.common.MyTargetManager
-import io.flutter.plugin.common.FlutterException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
