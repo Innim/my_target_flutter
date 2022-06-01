@@ -19,7 +19,7 @@ enum CreateInterstitialAdArg: String {
 
 public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
     private var dispatcher: AdDispatcher!
-    private var ads: [String: MTRGInterstitialAd] = [:]
+    private var ads: [String: Ad] = [:]
         
     var viewController: UIViewController? {
         get {
@@ -102,34 +102,40 @@ public class SwiftMyTargetFlutterPlugin: NSObject, FlutterPlugin {
         let rnd = Int.random(in: 1000000..<10000000)
         let uid = "\(slotId)_\(rnd)"
         
-        ads[uid] = ad
+        let delegate = InterstitialAdDelegate(dispatcher, uid, clear)
+        ad.delegate = delegate
         
-        // XXX: weak reference
-        ad.delegate = InterstitialAdDelegate(dispatcher, uid)
+        ads[uid] = Ad(ad, delegate)
         
         result(uid)
     }
     
     private func load(result: @escaping FlutterResult, adUid: String) {
         guard
-            let ad = ads[adUid]
+            let item = ads[adUid]
         else {
             result(FlutterError.adsNotFound(adUid))
             return
         }
         
-        ad.load()
+        item.ad.load()
     }
     
     private func show(result: @escaping FlutterResult, adUid: String) {
         guard
-            let ad = ads[adUid]
+            let item = ads[adUid]
         else {
             result(FlutterError.adsNotFound(adUid))
             return
         }
         
-        ad.show(with: viewController!)
+        item.ad.show(with: viewController!)
+    }
+    
+    private func clear(_ adUid: String) {
+        if let item = ads.removeValue(forKey: adUid) {
+            item.ad.delegate = nil
+        }
     }
 }
 
@@ -177,13 +183,25 @@ class AdDispatcher: NSObject, FlutterStreamHandler {
     }
 }
 
+class Ad {
+    public var ad: MTRGInterstitialAd
+    private var delegate: InterstitialAdDelegate
+    
+    init(_ ad: MTRGInterstitialAd, _ delegate: InterstitialAdDelegate) {
+        self.ad = ad
+        self.delegate = delegate
+    }
+}
+
 class InterstitialAdDelegate: NSObject, MTRGInterstitialAdDelegate {
     private var dispatcher: AdDispatcher
     private var uid: String
+    private var onDone: (_ uid: String) -> Void
     
-    init(_ dispatcher: AdDispatcher, _ uid: String) {
+    init(_ dispatcher: AdDispatcher, _ uid: String, _ onDone: @escaping (_ uid: String) -> Void) {
         self.dispatcher = dispatcher
         self.uid = uid
+        self.onDone = onDone
     }
 
     func onLoad(with interstitialAd: MTRGInterstitialAd) {
@@ -192,6 +210,7 @@ class InterstitialAdDelegate: NSObject, MTRGInterstitialAdDelegate {
     
     func onNoAd(withReason reason: String, interstitialAd: MTRGInterstitialAd) {
         dispatcher.dispatch(uid: uid, event: AdEvent.noAd, data: ["reason": reason])
+        onDone(uid)
     }
     
     func onDisplay(with interstitialAd: MTRGInterstitialAd) {
@@ -208,11 +227,13 @@ class InterstitialAdDelegate: NSObject, MTRGInterstitialAdDelegate {
     
     func onClose(with interstitialAd: MTRGInterstitialAd) {
         dispatcher.dispatch(uid: uid, event: AdEvent.close)
+        onDone(uid)
     }
     
-//    func onLeaveApplication(with interstitialAd: MTRGInterstitialAd) {
+    func onLeaveApplication(with interstitialAd: MTRGInterstitialAd) {
 //        dispatcher.dispatch(uid: uid, event: AdEvent.)
-//    }
+        onDone(uid)
+    }
 }
 
 
