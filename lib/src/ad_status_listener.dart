@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 
+// TODO: переделать
 abstract class AdStatusListener {
-  const AdStatusListener();
-
   static const _listenChannelName = 'my_target_flutter/ad_listener';
 
   static const _adLoaded = 'ad_loaded';
@@ -12,11 +13,9 @@ abstract class AdStatusListener {
   static const _adDismiss = 'ad_dismiss';
   static const _adVideoCompleted = 'ad_video_completed';
 
-  void listen() {
-    const channel =
-        BasicMessageChannel<String>(_listenChannelName, StringCodec());
-
-    channel.setMessageHandler((message) => _handleMassage(message));
+  AdStatusListener() {
+    const channel = EventChannel(_listenChannelName);
+    channel.receiveBroadcastStream().listen(_handleMassage);
   }
 
   void onAdLoaded();
@@ -31,26 +30,27 @@ abstract class AdStatusListener {
 
   void onVideoCompleted();
 
-  Future<String> _handleMassage(String? massage) async {
-    switch (massage) {
-      case _adLoaded:
-        onAdLoaded();
-        break;
-      case _noAd:
-        onNoAd();
-        break;
-      case _clickOnAd:
-        onClickOnAD();
-        break;
-      case _adDisplay:
-        onDisplay();
-        break;
-      case _adDismiss:
-        onDismiss();
-        break;
-      case _adVideoCompleted:
-        onVideoCompleted();
-    }
-    return 'message is handled';
+  Future<void> _handleMassage(dynamic data) async {
+    print('_handleMassage $data');
+    // switch (massage) {
+    //   case _adLoaded:
+    //     onAdLoaded();
+    //     break;
+    //   case _noAd:
+    //     onNoAd();
+    //     break;
+    //   case _clickOnAd:
+    //     onClickOnAD();
+    //     break;
+    //   case _adDisplay:
+    //     onDisplay();
+    //     break;
+    //   case _adDismiss:
+    //     onDismiss();
+    //     break;
+    //   case _adVideoCompleted:
+    //     onVideoCompleted();
+    // }
+    // return 'message is handled';
   }
 }

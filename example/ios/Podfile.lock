@@ -1,0 +1,33 @@
+PODS:
+  - Flutter (1.0.0)
+  - my_target_flutter (0.0.1):
+    - Flutter
+    - myTargetSDK (~> 5.15)
+  - myTargetSDK (5.15.1):
+    - myTrackerSDK (~> 3.0.3)
+  - myTrackerSDK (3.0.6)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - my_target_flutter (from `.symlinks/plugins/my_target_flutter/ios`)
+
+SPEC REPOS:
+  trunk:
+    - myTargetSDK
+    - myTrackerSDK
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  my_target_flutter:
+    :path: ".symlinks/plugins/my_target_flutter/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  my_target_flutter: e541eec0022bade17ab2a56fe3b98288c037c249
+  myTargetSDK: be478c3ee5661bcfb97b6608f513bb20156434b9
+  myTrackerSDK: 4fc38a0c56573d58761f3e85dbad483077fd0d2d
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.11.2

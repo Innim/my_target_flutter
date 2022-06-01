@@ -6,13 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:my_target_flutter/my_target_flutter.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  final plugin = MyTargetFlutter();
-
-  MyApp({
+  const MyApp({
     Key? key,
   }) : super(key: key);
 
@@ -21,30 +19,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late AdStatusListener adListener;
+  final _plugin = MyTargetFlutter(isDebug: true);
+  InterstitialAd? _ad;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-    adListener = AdListener(widget.plugin);
-    adListener.listen();
+    _initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
+  Future<void> _initPlatformState() async {
     try {
-      await widget.plugin.initialize(6896, true);
+      await _plugin.initialize();
     } on PlatformException {
-      log('inititalisation failed');
+      log('initialization failed');
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
   }
 
   @override
@@ -59,13 +48,35 @@ class _MyAppState extends State<MyApp> {
             children: [
               const SizedBox(height: 50),
               InkWell(
-                child: const Text('load AD'),
-                onTap: widget.plugin.load,
+                child: const Text('Create AD'),
+                onTap: () async {
+                  _ad?.clearListeners();
+
+                  final ad = _ad = await _plugin.createInterstitialAd(6896);
+                  ad.addListener(AdListener());
+                },
               ),
               const SizedBox(height: 50),
               InkWell(
-                child: const Text('show AD'),
-                onTap: widget.plugin.show,
+                child: const Text('Load AD'),
+                onTap: () async {
+                  if (_ad == null) {
+                    _showError('Ad not created');
+                  } else {
+                    _ad!.load();
+                  }
+                },
+              ),
+              const SizedBox(height: 50),
+              InkWell(
+                child: const Text('Show AD'),
+                onTap: () async {
+                  if (_ad == null) {
+                    _showError('Ad not created');
+                  } else {
+                    _ad!.show();
+                  }
+                },
               ),
             ],
           ),
@@ -73,11 +84,23 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+
+  void _showError(String text) {
+    showDialog(
+      context: context,
+      builder: (builder) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(text),
+        );
+      },
+    );
+  }
 }
 
 class AdListener extends AdStatusListener {
-  final MyTargetFlutter plugin;
-  const AdListener(this.plugin);
+  AdListener();
+
   @override
   void onAdLoaded() {
     plugin.show();
