@@ -15,9 +15,7 @@ class MethodCallHandler(
 ) : MethodChannel.MethodCallHandler {
     companion object {
         private const val INITIAL = "initial"
-        private const val CREATE_INTERSTITIAL_AD = "create_interstitial_ad"
-        private const val ADD_LISTENER_AD = "add_listener"
-        private const val REMOVE_LISTENER_AD = "remove_listener"
+        private const val CREATE_INTERSTITIAL_AD = "createInterstitialAd"
         private const val LOAD = "load"
         private const val SHOW = "show"
         private const val errorCode = "my_target_flutter_error:"
@@ -36,20 +34,12 @@ class MethodCallHandler(
                 createInterstitialAd(slotId, result)
             }
             LOAD -> {
-                val id = call.argument<String>("id")?.toString()
+                val id = call.arguments.toString()
                 load(result, id)
             }
             SHOW -> {
-                val id = call.argument<String>("id")?.toString()
+                val id = call.arguments.toString()
                 show(result, id)
-            }
-            ADD_LISTENER_AD -> {
-                val id = call.argument<String>("id")?.toString()
-                addListener(result, id)
-            }
-            REMOVE_LISTENER_AD -> {
-                val id = call.argument<String>("id")?.toString()
-                removeListener(result, id)
             }
         }
 
@@ -80,6 +70,8 @@ class MethodCallHandler(
             val interstitialAd = InterstitialAd(slotId, context)
             val random = UUID.randomUUID()
             val id = "${slotId}_${random}"
+            val listener = AdListener(adEventHandler, id) { id: String -> clear(id) }
+            interstitialAd.setListener(listener)
             ads.add(AdWithId(interstitialAd, id))
             result.success(id)
         }
@@ -95,20 +87,10 @@ class MethodCallHandler(
         ad?.show()
     }
 
-    private fun addListener(result: MethodChannel.Result, id: String?) {
-        val ad = findAdById(result, id)
-        if (ad != null) {
-            val listener = AdListener(adEventHandler, id!!)
-            ad.setListener(listener)
-        }
+    private fun clear(id: String) {
+        val ad = ads.find { it.id == id }
+        ads.remove(ad)
     }
-
-    private fun removeListener(result: MethodChannel.Result, id: String?) {
-        val ad = findAdById(result, id)
-        ad?.setListener(null)
-
-    }
-
 
     private fun findAdById(result: MethodChannel.Result, id: String?): InterstitialAd? {
         if (id == null) {

@@ -1,8 +1,9 @@
 package com.example.my_target_flutter
 import com.my.target.ads.InterstitialAd
+import javax.security.auth.callback.Callback
 
 
-class AdListener(private val adEventHandler: AdEventHandler, private val id: String) : InterstitialAd.InterstitialAdListener {
+class AdListener(private val adEventHandler: AdEventHandler, private val id: String, private val onDone: (id:String) -> Unit) : InterstitialAd.InterstitialAdListener {
     companion object{
         private const val ACTION_AD_LOADED = "ad_loaded"
         private const val ACTION_NO_AD = "no_ad"
@@ -18,6 +19,7 @@ class AdListener(private val adEventHandler: AdEventHandler, private val id: Str
     override fun onNoAd(reason: String, ad: InterstitialAd) {
         val data = mapOf("reason" to reason)
         adEventHandler.sendAdEvent(id, ACTION_NO_AD, data)
+        onDone.invoke(id)
     }
     override fun onClick(ad: InterstitialAd) {
         adEventHandler.sendAdEvent(id,ACTION_CLICK_ON_AD)
@@ -27,6 +29,7 @@ class AdListener(private val adEventHandler: AdEventHandler, private val id: Str
     }
     override fun onDismiss(ad: InterstitialAd) {
         adEventHandler.sendAdEvent(id, ACTION_AD_DISMISS)
+        onDone.invoke(id)
     }
     override fun onVideoCompleted(ad: InterstitialAd) {
         adEventHandler.sendAdEvent(id,ACTION_AD_VIDEO_COMPLETED)

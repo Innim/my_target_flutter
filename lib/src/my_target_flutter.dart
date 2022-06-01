@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+
 import 'ad_status_listener.dart';
 
 // TODO: docs
@@ -22,13 +23,13 @@ class MyTargetFlutter {
 
   // TODO: docs
   Future<InterstitialAd> createInterstitialAd(int slotId) async {
-    final id = await _channel.invokeMethod<String>(
+    final uid = await _channel.invokeMethod<String>(
       _methodCreateInterstitialAd,
       {'slotId': slotId},
     );
 
     // TODO: check for null and process a error
-    return InterstitialAd(this, id!);
+    return InterstitialAd(this, uid!);
   }
 
   Future<void> _load(String uid) async {

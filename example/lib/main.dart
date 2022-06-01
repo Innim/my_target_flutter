@@ -103,7 +103,7 @@ class AdListener extends AdStatusListener {
 
   @override
   void onAdLoaded() {
-    plugin.show();
+    // TODO: implement onAdLoaded
   }
 
   @override
