@@ -18,6 +18,8 @@ class MethodCallHandler(
     companion object {
         private const val INITIAL = "initial"
         private const val CREATE_INTERSTITIAL_AD = "create_interstitial_ad"
+        private const val ADD_LISTENER_AD = "add_listener"
+        private const val REMOVE_LISTENER_AD = "remove_listener"
         private const val LOAD = "load"
         private const val SHOW = "show"
         private const val errorCode = "my_target_flutter error:"
@@ -37,10 +39,21 @@ class MethodCallHandler(
                 createInterstitialAd(slotId, result)
             }
             LOAD -> {
-                val id = call.arguments<String>("id")?.toString()
+                val id = call.argument<String>("id")?.toString()
                 load(result, id)
             }
-            SHOW -> show(result)
+            SHOW -> {
+                val id = call.argument<String>("id")?.toString()
+                show(result, id)
+            }
+            ADD_LISTENER_AD -> {
+                val id = call.argument<String>("id")?.toString()
+                addListener(result, id)
+            }
+            REMOVE_LISTENER_AD -> {
+                val id = call.argument<String>("id")?.toString()
+                removeListener(result, id)
+            }
         }
 
     }
@@ -73,59 +86,50 @@ class MethodCallHandler(
             val id = "${slotId}_${random}"
             ads.add(AdWithId(interstitialAd, id))
             result.success(id)
-//            val listener = AdListener(adListenerChannel)
-//            interstitialAd.setListener(listener)
         }
     }
 
     private fun load(result: MethodChannel.Result, id: String?) {
-        if (id == null) {
-            result.error(errorCode, "id can not be null", null)
-        } else {
-            val ad = findAdById(id)
-            if (ad == null) {
-                result.error(errorCode, "can not find Ads for this id", "id: $id")
-            } else {
-                if (isInitialised) {
-                    ad.load()
-                    result.success(true)
-                } else {
-                    result.error(errorCode, "Ad not initialised", null)
-                }
-            }
-        }
+        val ad = findAdById(result, id)
+        ad?.load()
     }
 
     private fun show(result: MethodChannel.Result, id: String?) {
+        val ad = findAdById(result, id)
+        ad?.show()
+    }
+
+    private fun addListener(result: MethodChannel.Result, id: String?) {
+        val ad = findAdById(result, id)
+        if (ad != null) {
+            val listener = AdListener(adListenerChannel, id!!)
+            ad.setListener(listener)
+        }
+    }
+
+    private fun removeListener(result: MethodChannel.Result, id: String?) {
+        val ad = findAdById(result, id)
+        ad?.setListener(null)
+
+    }
+
+
+    private fun findAdById(result: MethodChannel.Result, id: String?): InterstitialAd? {
         if (id == null) {
             result.error(errorCode, "id can not be null", null)
         } else {
-            val ad = findAdById(id)
+            val ad = ads.find { it.id == id }?.ad
             if (ad == null) {
                 result.error(errorCode, "can not find Ads for this id", "id: $id")
             } else {
                 if (isInitialised) {
-                    ad.show()
-                    result.success(true)
+                    return ad
                 } else {
                     result.error(errorCode, "Ad not initialised", null)
                 }
             }
         }
-
-    }
-
-    private fun addListener(result: MethodChannel.Result, id: String) {
-        if (isInitialised) {
-
-        } else {
-            result.error(errorCode, "Ad not initialised", null)
-        }
-
-    }
-
-    private fun findAdById(id: String): InterstitialAd? {
-        return ads.find { it.id == id }?.ad
+        return null
     }
 
     data class InitialData(

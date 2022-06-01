@@ -3,7 +3,7 @@ package com.example.my_target_flutter
 import com.my.target.ads.InterstitialAd
 import io.flutter.plugin.common.BasicMessageChannel
 
-class AdListener( private val adListenerChannel: BasicMessageChannel<String>) : InterstitialAd.InterstitialAdListener {
+class AdListener( private val adListenerChannel: BasicMessageChannel<String>, private val id: String) : InterstitialAd.InterstitialAdListener {
 
     companion object{
         private const val ACTION_AD_LOADED = "ad_loaded"
