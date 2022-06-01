@@ -4,9 +4,10 @@ import 'package:flutter/services.dart';
 
 import 'ad_status_listener.dart';
 
-// TODO: docs
+/// Class for implementing MyTarget ads.
 class MyTargetFlutter {
   final bool isDebug;
+
   MyTargetFlutter({required this.isDebug});
 
   static const MethodChannel _channel = MethodChannel('my_target_flutter');
@@ -15,13 +16,15 @@ class MyTargetFlutter {
   static const _methodCreateInterstitialAd = 'createInterstitialAd';
   static const _methodLoad = 'load';
   static const _methodShow = 'show';
-// TODO: docs
+
+  /// Initialising MyTarget ads. If[useDebugMode] = true
+  /// and [testDevices] != null will show test ads.
   Future<void> initialize({bool? useDebugMode, String? testDevices}) async {
     await _channel.invokeMethod(_methodInitialize,
         _getInitialData(useDebugMode ?? isDebug, testDevices));
   }
 
-  // TODO: docs
+  /// Creating an Interstitial ads for [slotId]
   Future<InterstitialAd> createInterstitialAd(int slotId) async {
     final uid = await _channel.invokeMethod<String>(
       _methodCreateInterstitialAd,

@@ -3,6 +3,7 @@ package ru.innim.my_target_flutter
 import android.content.Context
 import com.my.target.common.MyTargetConfig
 import com.my.target.common.MyTargetManager
+import io.flutter.plugin.common.FlutterException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
@@ -18,7 +19,10 @@ class MethodCallHandler(
         private const val CREATE_INTERSTITIAL_AD = "createInterstitialAd"
         private const val LOAD = "load"
         private const val SHOW = "show"
-        private const val errorCode = "my_target_flutter_error:"
+        private const val invalidArgsErrorCode = "INVALID_ARGS"
+        private const val notFoundErrorCode = "ADS_NOT_FOUND"
+        private const val invalidArgsErroeMessage = "value cant be null"
+
     }
 
     private val ads = mutableListOf<AdWithId>()
@@ -51,21 +55,16 @@ class MethodCallHandler(
         testDevices: String?,
         result: MethodChannel.Result,
     ) {
-        try {
             MyTargetManager.initSdk(context)
             MyTargetManager.setDebugMode(useDebugMode)
             val configBuilder = MyTargetConfig.Builder().withTestDevices(testDevices).build()
             MyTargetManager.setSdkConfig(configBuilder)
             result.success(true)
-        } catch (e: Exception) {
-            result.error(errorCode, " can not initialize", null)
-        }
-
     }
 
     private fun createInterstitialAd(slotId: Int?, result: MethodChannel.Result) {
         if (slotId == null) {
-            result.error(errorCode, " slotId cant be null", null)
+            result.error(invalidArgsErrorCode, invalidArgsErroeMessage, "slotId: $slotId")
         } else {
             val interstitialAd = InterstitialAd(slotId, context)
             val random = UUID.randomUUID()
@@ -94,11 +93,11 @@ class MethodCallHandler(
 
     private fun findAdById(result: MethodChannel.Result, id: String?): InterstitialAd? {
         if (id == null) {
-            result.error(errorCode, "id can not be null", null)
+            result.error(invalidArgsErrorCode, invalidArgsErroeMessage, "id: $id")
         } else {
             val ad = ads.find { it.id == id }?.ad
             if (ad == null) {
-                result.error(errorCode, "ads not found", "id: $id")
+                result.error(notFoundErrorCode, "ads not found", "id: $id")
             } else {
                 return ad
             }
