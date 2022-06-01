@@ -1,10 +1,8 @@
 package com.example.my_target_flutter
 
 import android.content.Context
-import com.my.target.common.BaseAd
 import com.my.target.common.MyTargetConfig
 import com.my.target.common.MyTargetManager
-import io.flutter.plugin.common.BasicMessageChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
@@ -13,7 +11,7 @@ import com.my.target.ads.InterstitialAd as InterstitialAd
 
 class MethodCallHandler(
     private val context: Context,
-    private val adListenerChannel: BasicMessageChannel<String>
+    private val adEventHandler: AdEventHandler
 ) : MethodChannel.MethodCallHandler {
     companion object {
         private const val INITIAL = "initial"
@@ -22,11 +20,10 @@ class MethodCallHandler(
         private const val REMOVE_LISTENER_AD = "remove_listener"
         private const val LOAD = "load"
         private const val SHOW = "show"
-        private const val errorCode = "my_target_flutter error:"
+        private const val errorCode = "my_target_flutter_error:"
     }
 
     private val ads = mutableListOf<AdWithId>()
-    private var isInitialised = false
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -69,10 +66,9 @@ class MethodCallHandler(
             MyTargetManager.setDebugMode(useDebugMode)
             val configBuilder = MyTargetConfig.Builder().withTestDevices(testDevices).build()
             MyTargetManager.setSdkConfig(configBuilder)
-            isInitialised = true
             result.success(true)
         } catch (e: Exception) {
-            result.error(errorCode, " can not initialise", null)
+            result.error(errorCode, " can not initialize", null)
         }
 
     }
@@ -102,7 +98,7 @@ class MethodCallHandler(
     private fun addListener(result: MethodChannel.Result, id: String?) {
         val ad = findAdById(result, id)
         if (ad != null) {
-            val listener = AdListener(adListenerChannel, id!!)
+            val listener = AdListener(adEventHandler, id!!)
             ad.setListener(listener)
         }
     }
@@ -120,13 +116,9 @@ class MethodCallHandler(
         } else {
             val ad = ads.find { it.id == id }?.ad
             if (ad == null) {
-                result.error(errorCode, "can not find Ads for this id", "id: $id")
+                result.error(errorCode, "ads not found", "id: $id")
             } else {
-                if (isInitialised) {
-                    return ad
-                } else {
-                    result.error(errorCode, "Ad not initialised", null)
-                }
+                return ad
             }
         }
         return null

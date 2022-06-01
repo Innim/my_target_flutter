@@ -3,10 +3,7 @@ package com.example.my_target_flutter
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.BasicMessageChannel
-import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.StringCodec
+import io.flutter.plugin.common.*
 
 
 /** MyTargetFlutterPlugin */
@@ -17,7 +14,8 @@ class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
     }
 
 
-    private lateinit var adListenerChannel:BasicMessageChannel<String>
+    private var adEventHandler: AdEventHandler? = null
+    private lateinit var adListenerChannel: EventChannel
     private  lateinit var dartChannel: MethodChannel
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -27,9 +25,11 @@ class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
             CHANNEL_NAME,
         )
          val context = binding.applicationContext
-         adListenerChannel = BasicMessageChannel(
-            messenger, AD_LISTENER_CHANNEL_NAME, StringCodec.INSTANCE)
-         val methodCallHandler = MethodCallHandler(context, adListenerChannel)
+         adListenerChannel = EventChannel(
+            messenger, AD_LISTENER_CHANNEL_NAME)
+        adEventHandler = AdEventHandler()
+        adListenerChannel.setStreamHandler(adEventHandler)
+         val methodCallHandler = MethodCallHandler(context, adEventHandler!!)
         dartChannel.setMethodCallHandler(methodCallHandler)
 
     }
@@ -43,7 +43,8 @@ class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
 
     override fun onDetachedFromActivityForConfigChanges() {
         dartChannel.setMethodCallHandler(null)
-        adListenerChannel.setMessageHandler(null)
+        adListenerChannel.setStreamHandler(null)
+        adEventHandler = null
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
