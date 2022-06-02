@@ -1,6 +1,7 @@
 # my_target_flutter
 
 Flutter plugin to use MyTarget Interstitial ads.
+[MyTarget documentation](https://target.my.com/help/partners/mob/en)
 
 ## SDK version
 
@@ -27,10 +28,9 @@ await _plugin.initialize();
 3. create an instance of InterstitialAd and an instanse of AdStatusListener:
 
 ```dart
- late InterstitialAd _interstitialAd;
 
- _interstitialAd = await _plugin.createInterstitialAd(yourSlotId);
-final adListener = AdStatusListener(interstitialAd.uid,
+final _interstitialAd = await _plugin.createInterstitialAd(yourSlotId);
+final adListener = AdStatusListener(
     onAdLoaded:  _onloaded,
     onDisplay:  _onDisplay,
     onClickOnAD: _onClickOnAD,
@@ -41,7 +41,7 @@ final adListener = AdStatusListener(interstitialAd.uid,
 ```
 4. show ads when it is loaded:
 ```dart
-void _onloaded()  {
+void _onLoaded()  {
   _interstitialAd.show();
 }
 ```
