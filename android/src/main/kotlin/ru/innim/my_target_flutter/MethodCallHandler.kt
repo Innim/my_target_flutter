@@ -14,7 +14,7 @@ class MethodCallHandler(
     private val adEventHandler: AdEventHandler
 ) : MethodChannel.MethodCallHandler {
     companion object {
-        private const val METHOD_INITIAL = "initial"
+        private const val METHOD_INITIAL = "initialize"
         private const val METHOD_CREATE_INTERSTITIAL_AD = "createInterstitialAd"
         private const val METHOD_LOAD = "load"
         private const val METHOD_SHOW = "show"
