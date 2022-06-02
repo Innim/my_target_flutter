@@ -45,63 +45,65 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Column(
-            children: [
-              const SizedBox(height: 50),
-              InkWell(
-                  child: const Text('Create AD'),
-                  onTap: () async {
-                    _ad?.clearListeners();
+          child: Builder(builder: (context) {
+            return Column(
+              children: [
+                const SizedBox(height: 50),
+                InkWell(
+                    child: const Text('Create AD'),
+                    onTap: () async {
+                      _ad?.clearListeners();
 
-                    final ad = _ad = await _plugin.createInterstitialAd(6896);
-                    if (ad != null) {
-                      final adListener = AdStatusListener(ad.uid,
-                          onAdLoaded: () => _changeAdStatus('Ad loaded'),
-                          onDisplay: () => _changeAdStatus('Ad display'),
-                          onClickOnAD: () => _changeAdStatus('Clicked on ad'),
-                          onVideoCompleted: () =>
-                              _changeAdStatus('Ad vodeo completed'),
-                          onDismiss: () => _changeAdStatus('Ad closed'),
-                          onNoAd: (reason) =>
-                              {_changeAdStatus('Ad not loaded: $reason')});
-                      ad.addListener(adListener);
-                      _changeAdStatus('Ad created');
+                      final ad = _ad = await _plugin.createInterstitialAd(6896);
+                      if (ad != null) {
+                        final adListener = AdStatusListener(ad.uid,
+                            onAdLoaded: () => _changeAdStatus('Ad loaded'),
+                            onDisplay: () => _changeAdStatus('Ad display'),
+                            onClickOnAD: () => _changeAdStatus('Clicked on ad'),
+                            onVideoCompleted: () =>
+                                _changeAdStatus('Ad vodeo completed'),
+                            onDismiss: () => _changeAdStatus('Ad closed'),
+                            onNoAd: (reason) =>
+                                {_changeAdStatus('Ad not loaded: $reason')});
+                        ad.addListener(adListener);
+                        _changeAdStatus('Ad created');
+                      } else {
+                        _showError(context, 'can not create Interstitial ad');
+                      }
+                    }),
+                const SizedBox(height: 50),
+                InkWell(
+                  child: const Text('Load AD'),
+                  onTap: () async {
+                    if (_ad == null) {
+                      _showError(context, 'Ad not created');
                     } else {
-                      _showError('can not create Interstitial ad');
+                      _ad!.load();
                     }
-                  }),
-              const SizedBox(height: 50),
-              InkWell(
-                child: const Text('Load AD'),
-                onTap: () async {
-                  if (_ad == null) {
-                    _showError('Ad not created');
-                  } else {
-                    _ad!.load();
-                  }
-                },
-              ),
-              const SizedBox(height: 50),
-              InkWell(
-                child: const Text('Show AD'),
-                onTap: () async {
-                  if (_ad == null) {
-                    _showError('Ad not created');
-                  } else {
-                    _ad!.show();
-                  }
-                },
-              ),
-              const SizedBox(height: 50),
-              Text('Ad status: $_adStatus')
-            ],
-          ),
+                  },
+                ),
+                const SizedBox(height: 50),
+                InkWell(
+                  child: const Text('Show AD'),
+                  onTap: () async {
+                    if (_ad == null) {
+                      _showError(context, 'Ad not created');
+                    } else {
+                      _ad!.show();
+                    }
+                  },
+                ),
+                const SizedBox(height: 50),
+                Text('Ad status: $_adStatus')
+              ],
+            );
+          }),
         ),
       ),
     );
   }
 
-  void _showError(String text) {
+  void _showError(BuildContext context, String text) {
     showDialog(
       context: context,
       builder: (builder) {
