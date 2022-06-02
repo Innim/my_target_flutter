@@ -25,18 +25,17 @@ import 'package:my_target_flutter/my_target_flutter.dart';
 final _plugin = MyTargetFlutter(isDebug: isDebug);
 await _plugin.initialize();
 ```
-3. create an instance of InterstitialAd and an instanse of AdStatusListener:
-
+3. create an instance of InterstitialAd and add an instanse of AdStatusListener to InterstitialAd:
 ```dart
-
 final _interstitialAd = await _plugin.createInterstitialAd(yourSlotId);
-final adListener = AdStatusListener(
-    onAdLoaded:  _onloaded,
-    onDisplay:  _onDisplay,
-    onClickOnAD: _onClickOnAD,
-    onVideoCompleted: _onVideoCompleted,
-    onDismiss:  _onDismiss,
-    onNoAd: _onNoAd);
+_interstitialAd.addListener(AdStatusListener(
+onAdLoaded:  _onLoaded,
+onDisplay:  _onDisplay,
+onClickOnAD: _onClickOnAD,
+onVideoCompleted: _onVideoCompleted,
+onDismiss:  _onDismiss,
+onNoAd: _onNoAd,
+));
 
 ```
 4. show ads when it is loaded:
