@@ -65,7 +65,6 @@ class _MyAppState extends State<MyApp> {
                           onNoAd: (reason) =>
                               _changeAdStatus('Ad not loaded: $reason'));
                       ad.addListener(adListener);
-                      ad.addListener(adListener);
                       _changeAdStatus('Ad created');
                     }),
                 const SizedBox(height: 50),
