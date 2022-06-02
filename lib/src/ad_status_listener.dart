@@ -49,8 +49,8 @@ class AdStatusListener {
 }
 
 class AdEventMessage {
-  final String? uid;
-  final String? event;
+  final String uid;
+  final String event;
   final Map<String, dynamic>? data;
 
   const AdEventMessage(this.uid, this.event, this.data);

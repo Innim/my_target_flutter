@@ -7,22 +7,21 @@ import 'ad_status_listener.dart';
 
 /// Implementing displaying MyTarget ads, currently supported by Interstitial Ads only.
 class MyTargetFlutter {
-  static const _listenChannelName = 'my_target_flutter/ad_listener';
-  final bool isDebug;
-
-  MyTargetFlutter({required this.isDebug});
-
   static const MethodChannel _channel = MethodChannel('my_target_flutter');
-  static const channel = EventChannel(_listenChannelName);
+  static const channel = EventChannel('my_target_flutter/ad_listener');
 
   static const _methodInitialize = 'initialize';
   static const _methodCreateInterstitialAd = 'createInterstitialAd';
   static const _methodLoad = 'load';
   static const _methodShow = 'show';
 
+  final bool isDebug;
+
   Stream<AdEventMessage>? _stream;
 
-  Stream<AdEventMessage> get stream {
+  MyTargetFlutter({required this.isDebug});
+
+  Stream<AdEventMessage> get _adListenStream {
     return _stream ??= channel
         .receiveBroadcastStream()
         .cast<Map<dynamic, dynamic>>()
@@ -79,7 +78,7 @@ class InterstitialAd {
   final _listeners = <AdStatusListener>{};
 
   InterstitialAd(this._plugin, this.uid) {
-    _plugin.stream.listen(_handleMessage);
+    _plugin._adListenStream.listen(_handleMessage);
   }
 
   Future<void> _handleMessage(AdEventMessage data) async {
@@ -109,7 +108,7 @@ class InterstitialAd {
   }
 }
 
-extension SetAdStatusListenerExtention on Set<AdStatusListener> {
+extension _SetAdStatusListenerExtention on Set<AdStatusListener> {
   void handleEvent(AdEventMessage data) {
     for (final listener in this) {
       listener.handleEvent(data);
