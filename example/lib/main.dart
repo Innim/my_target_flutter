@@ -21,6 +21,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _plugin = MyTargetFlutter(isDebug: true);
   InterstitialAd? _ad;
+  var _adStatus = 'not created';
 
   @override
   void initState() {
@@ -44,48 +45,61 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Column(
-            children: [
-              const SizedBox(height: 50),
-              InkWell(
-                child: const Text('Create AD'),
-                onTap: () async {
-                  _ad?.clearListeners();
+          child: Builder(builder: (context) {
+            return Column(
+              children: [
+                const SizedBox(height: 50),
+                InkWell(
+                    child: const Text('Create AD'),
+                    onTap: () async {
+                      _ad?.clearListeners();
 
-                  final ad = _ad = await _plugin.createInterstitialAd(6896);
-                  ad.addListener(AdListener());
-                },
-              ),
-              const SizedBox(height: 50),
-              InkWell(
-                child: const Text('Load AD'),
-                onTap: () async {
-                  if (_ad == null) {
-                    _showError('Ad not created');
-                  } else {
-                    _ad!.load();
-                  }
-                },
-              ),
-              const SizedBox(height: 50),
-              InkWell(
-                child: const Text('Show AD'),
-                onTap: () async {
-                  if (_ad == null) {
-                    _showError('Ad not created');
-                  } else {
-                    _ad!.show();
-                  }
-                },
-              ),
-            ],
-          ),
+                      final ad = _ad = await _plugin.createInterstitialAd(6896);
+                      final adListener = AdStatusListener(
+                          onAdLoaded: () => _changeAdStatus('Ad loaded'),
+                          onDisplay: () => _changeAdStatus('Ad display'),
+                          onClickOnAD: () => _changeAdStatus('Clicked on ad'),
+                          onVideoCompleted: () =>
+                              _changeAdStatus('Ad video completed'),
+                          onDismiss: () => _changeAdStatus('Ad closed'),
+                          onNoAd: (reason) =>
+                              _changeAdStatus('Ad not loaded: $reason'));
+                      ad.addListener(adListener);
+                      _changeAdStatus('Ad created');
+                    }),
+                const SizedBox(height: 50),
+                InkWell(
+                  child: const Text('Load AD'),
+                  onTap: () async {
+                    if (_ad == null) {
+                      _showError(context, 'Ad not created');
+                    } else {
+                      _ad!.load();
+                    }
+                  },
+                ),
+                const SizedBox(height: 50),
+                InkWell(
+                  child: const Text('Show AD'),
+                  onTap: () async {
+                    if (_ad == null) {
+                      _showError(context, 'Ad not created');
+                    } else {
+                      _ad!.show();
+                    }
+                  },
+                ),
+                const SizedBox(height: 50),
+                Text('Ad status: $_adStatus')
+              ],
+            );
+          }),
         ),
       ),
     );
   }
 
-  void _showError(String text) {
+  void _showError(BuildContext context, String text) {
     showDialog(
       context: context,
       builder: (builder) {
@@ -96,38 +110,10 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
-}
 
-class AdListener extends AdStatusListener {
-  AdListener();
-
-  @override
-  void onAdLoaded() {
-    plugin.show();
-  }
-
-  @override
-  void onClickOnAD() {
-    // TODO: implement onClickOnAD
-  }
-
-  @override
-  void onDismiss() {
-    // TODO: implement onDismiss
-  }
-
-  @override
-  void onDisplay() {
-    // TODO: implement onDisplay
-  }
-
-  @override
-  void onNoAd() {
-    // TODO: implement onNoAd
-  }
-
-  @override
-  void onVideoCompleted() {
-    // TODO: implement onVideoCompleted
+  void _changeAdStatus(String status) {
+    setState(() {
+      _adStatus = status;
+    });
   }
 }

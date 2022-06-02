@@ -1,11 +1,8 @@
-import 'dart:async';
+import 'package:flutter/cupertino.dart';
 
-import 'package:flutter/services.dart';
+typedef AdEventCallback = void Function(Map<String, dynamic>?);
 
-// TODO: переделать
-abstract class AdStatusListener {
-  static const _listenChannelName = 'my_target_flutter/ad_listener';
-
+class AdStatusListener {
   static const _adLoaded = 'ad_loaded';
   static const _noAd = 'no_ad';
   static const _clickOnAd = 'click_on_ad';
@@ -13,44 +10,58 @@ abstract class AdStatusListener {
   static const _adDismiss = 'ad_dismiss';
   static const _adVideoCompleted = 'ad_video_completed';
 
-  AdStatusListener() {
-    const channel = EventChannel(_listenChannelName);
-    channel.receiveBroadcastStream().listen(_handleMassage);
+  final VoidCallback? onAdLoaded;
+  final AdEventCallback? onNoAd;
+  final VoidCallback? onClickOnAD;
+  final VoidCallback? onDisplay;
+  final VoidCallback? onDismiss;
+  final VoidCallback? onVideoCompleted;
+
+  AdStatusListener(
+      {this.onAdLoaded,
+      this.onNoAd,
+      this.onDisplay,
+      this.onDismiss,
+      this.onClickOnAD,
+      this.onVideoCompleted});
+
+  void handleEvent(AdEventMessage data) async {
+    switch (data.event) {
+      case _adLoaded:
+        onAdLoaded?.call();
+        break;
+      case _noAd:
+        onNoAd?.call(data.data);
+        break;
+      case _clickOnAd:
+        onClickOnAD?.call();
+        break;
+      case _adDisplay:
+        onDisplay?.call();
+        break;
+      case _adDismiss:
+        onDismiss?.call();
+        break;
+      case _adVideoCompleted:
+        onVideoCompleted?.call();
+    }
   }
+}
 
-  void onAdLoaded();
+class AdEventMessage {
+  final String uid;
+  final String event;
+  final Map<String, dynamic>? data;
 
-  void onNoAd();
+  const AdEventMessage(this.uid, this.event, this.data);
 
-  void onClickOnAD();
+  factory AdEventMessage.fromJson(Map<String, dynamic> map) => AdEventMessage(
+      map['uid'] as String,
+      map['event'] as String,
+      (map['data'] as Map<dynamic, dynamic>?)?.cast<String, dynamic>());
 
-  void onDisplay();
-
-  void onDismiss();
-
-  void onVideoCompleted();
-
-  Future<void> _handleMassage(dynamic data) async {
-    print('_handleMassage $data');
-    // switch (massage) {
-    //   case _adLoaded:
-    //     onAdLoaded();
-    //     break;
-    //   case _noAd:
-    //     onNoAd();
-    //     break;
-    //   case _clickOnAd:
-    //     onClickOnAD();
-    //     break;
-    //   case _adDisplay:
-    //     onDisplay();
-    //     break;
-    //   case _adDismiss:
-    //     onDismiss();
-    //     break;
-    //   case _adVideoCompleted:
-    //     onVideoCompleted();
-    // }
-    // return 'message is handled';
+  @override
+  String toString() {
+    return 'AdEventMessage{uid: $uid, event: $event, data: $data}';
   }
 }
