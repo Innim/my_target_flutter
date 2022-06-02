@@ -14,13 +14,13 @@ class MethodCallHandler(
     private val adEventHandler: AdEventHandler
 ) : MethodChannel.MethodCallHandler {
     companion object {
-        private const val INITIAL = "initial"
-        private const val CREATE_INTERSTITIAL_AD = "createInterstitialAd"
-        private const val LOAD = "load"
-        private const val SHOW = "show"
-        private const val invalidArgsErrorCode = "INVALID_ARGS"
-        private const val notFoundErrorCode = "ADS_NOT_FOUND"
-        private const val invalidArgsErroeMessage = "value cant be null"
+        private const val METHOD_INITIAL = "initial"
+        private const val METHOD_CREATE_INTERSTITIAL_AD = "createInterstitialAd"
+        private const val METHOD_LOAD = "load"
+        private const val METHOD_SHOW = "show"
+        private const val INVALID_ARGS_ERROR_CODE = "INVALID_ARGS"
+        private const val NOT_FOUND_ERROR_CODE = "ADS_NOT_FOUND"
+        private const val INVALID_ARGS_ERROR_MESSAGE = "value cant be null"
 
     }
 
@@ -28,19 +28,19 @@ class MethodCallHandler(
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
-            INITIAL -> {
+            METHOD_INITIAL -> {
                 val data = InitialData.fromArgs(call)
-                initAd(context, data.useDebugMode ?: false, data.testDevices, result)
+                initAd(context, data.useDebugMode, data.testDevices, result)
             }
-            CREATE_INTERSTITIAL_AD -> {
+            METHOD_CREATE_INTERSTITIAL_AD -> {
                 val slotId = call.argument<Int>("slotId")?.toInt()
                 createInterstitialAd(slotId, result)
             }
-            LOAD -> {
+            METHOD_LOAD -> {
                 val id = call.arguments.toString()
                 load(result, id)
             }
-            SHOW -> {
+            METHOD_SHOW -> {
                 val id = call.arguments.toString()
                 show(result, id)
             }
@@ -54,16 +54,18 @@ class MethodCallHandler(
         testDevices: String?,
         result: MethodChannel.Result,
     ) {
-            MyTargetManager.initSdk(context)
-            MyTargetManager.setDebugMode(useDebugMode)
+        MyTargetManager.initSdk(context)
+        MyTargetManager.setDebugMode(useDebugMode)
+        if (testDevices != null) {
             val configBuilder = MyTargetConfig.Builder().withTestDevices(testDevices).build()
             MyTargetManager.setSdkConfig(configBuilder)
-            result.success(true)
+        }
+        result.success(true)
     }
 
     private fun createInterstitialAd(slotId: Int?, result: MethodChannel.Result) {
         if (slotId == null) {
-            result.error(invalidArgsErrorCode, invalidArgsErroeMessage, "slotId: $slotId")
+            result.error(INVALID_ARGS_ERROR_CODE, INVALID_ARGS_ERROR_MESSAGE, "slotId: $slotId")
         } else {
             val interstitialAd = InterstitialAd(slotId, context)
             val random = UUID.randomUUID()
@@ -76,36 +78,35 @@ class MethodCallHandler(
     }
 
     private fun load(result: MethodChannel.Result, id: String?) {
-        val ad = findAdById(result, id)
-        ad?.load()
+        findAdById(result, id) { ad: InterstitialAd -> ad.load() }
     }
 
     private fun show(result: MethodChannel.Result, id: String?) {
-        val ad = findAdById(result, id)
-        ad?.show()
+        findAdById(result, id) { ad: InterstitialAd -> ad.show() }
+
     }
 
     private fun clear(id: String) {
         val ad = ads.find { it.id == id }
+        ad?.ad?.setListener(null)
         ads.remove(ad)
     }
 
-    private fun findAdById(result: MethodChannel.Result, id: String?): InterstitialAd? {
+    private fun findAdById(result: MethodChannel.Result, id: String?, action: (ad:InterstitialAd) -> Unit) {
         if (id == null) {
-            result.error(invalidArgsErrorCode, invalidArgsErroeMessage, "id: $id")
+            result.error(INVALID_ARGS_ERROR_CODE, INVALID_ARGS_ERROR_MESSAGE, "id: $id")
         } else {
             val ad = ads.find { it.id == id }?.ad
             if (ad == null) {
-                result.error(notFoundErrorCode, "ads not found", "id: $id")
+                result.error(NOT_FOUND_ERROR_CODE, "ads not found", "id: $id")
             } else {
-                return ad
+                return action(ad)
             }
         }
-        return null
     }
 
     data class InitialData(
-        val useDebugMode: Boolean?,
+        val useDebugMode: Boolean,
         val testDevices: String?
     ) {
         companion object {
@@ -117,8 +118,7 @@ class MethodCallHandler(
         }
     }
 
-    data class AdWithId
-        (
+    data class AdWithId(
         var ad: InterstitialAd,
         val id: String
     )

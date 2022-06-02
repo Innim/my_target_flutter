@@ -14,7 +14,7 @@ class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
     }
 
 
-    private var adEventHandler: AdEventHandler? = null
+    private lateinit var adEventHandler: AdEventHandler
     private lateinit var adListenerChannel: EventChannel
     private  lateinit var dartChannel: MethodChannel
 
@@ -30,7 +30,7 @@ class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
          )
         adEventHandler = AdEventHandler()
         adListenerChannel.setStreamHandler(adEventHandler)
-         val methodCallHandler = MethodCallHandler(context, adEventHandler!!)
+         val methodCallHandler = MethodCallHandler(context, adEventHandler)
         dartChannel.setMethodCallHandler(methodCallHandler)
 
     }
@@ -45,7 +45,6 @@ class MyTargetFlutterPlugin : FlutterPlugin, ActivityAware {
     override fun onDetachedFromActivityForConfigChanges() {
         dartChannel.setMethodCallHandler(null)
         adListenerChannel.setStreamHandler(null)
-        adEventHandler = null
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {

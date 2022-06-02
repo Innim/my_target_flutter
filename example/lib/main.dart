@@ -55,21 +55,18 @@ class _MyAppState extends State<MyApp> {
                       _ad?.clearListeners();
 
                       final ad = _ad = await _plugin.createInterstitialAd(6896);
-                      if (ad != null) {
-                        final adListener = AdStatusListener(ad.uid,
-                            onAdLoaded: () => _changeAdStatus('Ad loaded'),
-                            onDisplay: () => _changeAdStatus('Ad display'),
-                            onClickOnAD: () => _changeAdStatus('Clicked on ad'),
-                            onVideoCompleted: () =>
-                                _changeAdStatus('Ad vodeo completed'),
-                            onDismiss: () => _changeAdStatus('Ad closed'),
-                            onNoAd: (reason) =>
-                                {_changeAdStatus('Ad not loaded: $reason')});
-                        ad.addListener(adListener);
-                        _changeAdStatus('Ad created');
-                      } else {
-                        _showError(context, 'can not create Interstitial ad');
-                      }
+                      final adListener = AdStatusListener(
+                          onAdLoaded: () => _changeAdStatus('Ad loaded'),
+                          onDisplay: () => _changeAdStatus('Ad display'),
+                          onClickOnAD: () => _changeAdStatus('Clicked on ad'),
+                          onVideoCompleted: () =>
+                              _changeAdStatus('Ad video completed'),
+                          onDismiss: () => _changeAdStatus('Ad closed'),
+                          onNoAd: (reason) =>
+                              _changeAdStatus('Ad not loaded: $reason'));
+                      ad.addListener(adListener);
+                      ad.addListener(adListener);
+                      _changeAdStatus('Ad created');
                     }),
                 const SizedBox(height: 50),
                 InkWell(
