@@ -24,7 +24,7 @@ class MyTargetFlutter {
         _getInitialData(useDebugMode ?? isDebug, testDevices));
   }
 
-  /// Creating an Interstitial ads for [slotId]
+  /// Create an Interstitial ads with [slotId]
   Future<InterstitialAd?> createInterstitialAd(int slotId) async {
     final uid = await _channel.invokeMethod<String>(
       _methodCreateInterstitialAd,
