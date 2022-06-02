@@ -25,14 +25,13 @@ class MyTargetFlutter {
   }
 
   /// Creating an Interstitial ads for [slotId]
-  Future<InterstitialAd> createInterstitialAd(int slotId) async {
+  Future<InterstitialAd?> createInterstitialAd(int slotId) async {
     final uid = await _channel.invokeMethod<String>(
       _methodCreateInterstitialAd,
       {'slotId': slotId},
     );
 
-    // TODO: check for null and process a error
-    return InterstitialAd(this, uid!);
+    return uid != null ? InterstitialAd(this, uid) : null;
   }
 
   Future<void> _load(String uid) async {
