@@ -91,8 +91,8 @@ class InterstitialAd {
     _plugin._load(uid);
   }
 
-  Future<void> show() async {
-    await _plugin._show(uid);
+  void show() {
+    _plugin._show(uid);
   }
 
   void addListener(AdStatusListener listener) {
