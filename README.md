@@ -1,5 +1,8 @@
 # my_target_flutter
 
+[![pub package](https://img.shields.io/pub/v/my_target_flutter)](https://pub.dartlang.org/packages/my_target_flutter)
+![Analyze & Test](https://github.com/Innim/my_target_flutter/actions/workflows/dart.yml/badge.svg?branch=main)
+
 Flutter plugin to use MyTarget Interstitial ads.
 [MyTarget documentation](https://target.my.com/help/partners/mob/en)
 
