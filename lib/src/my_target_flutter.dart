@@ -33,7 +33,7 @@ class MyTargetFlutter {
     ));
   }
 
-  /// Initialising MyTarget ads.
+  /// Initializing MyTarget ads.
   /// [useDebugMode] enabling debug mode.
   /// Pass the test device ID to [testDevices] if needed.
   /// For full details on test mode see [https://target.my.com/help/partners/mob/debug/en]
@@ -108,7 +108,7 @@ class InterstitialAd {
   }
 }
 
-extension _SetAdStatusListenerExtention on Set<AdStatusListener> {
+extension _SetAdStatusListenerExtension on Set<AdStatusListener> {
   void handleEvent(AdEventMessage data) {
     for (final listener in this) {
       listener.handleEvent(data);
