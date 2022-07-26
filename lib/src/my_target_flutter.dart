@@ -110,7 +110,8 @@ class InterstitialAd {
 
 extension _SetAdStatusListenerExtension on Set<AdStatusListener> {
   void handleEvent(AdEventMessage data) {
-    for (final listener in this) {
+    var listeners = toList();
+    for (final listener in listeners) {
       listener.handleEvent(data);
     }
   }
