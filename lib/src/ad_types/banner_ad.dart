@@ -15,7 +15,7 @@ class BannerAd extends StatefulWidget {
   State<BannerAd> createState() => _BannerAdState();
 }
 
-class _BannerAdState extends State<BannerAd> with AutomaticKeepAliveClientMixin {
+class _BannerAdState extends State<BannerAd> {
   final _listeners = <AdStatusListener>{};
 
   @override
@@ -58,7 +58,4 @@ class _BannerAdState extends State<BannerAd> with AutomaticKeepAliveClientMixin 
         throw UnsupportedError('Unsupported platform view');
     }
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

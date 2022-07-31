@@ -39,11 +39,6 @@ class MethodCallHandler(private val context: Context, private val adEventHandler
                 val slotId = call.argument<Int>("slotId")?.toInt()
                 createRewardedAd(slotId, result)
             }
-            METHOD_CREATE_BANNER_AD -> {
-                val slotId = call.argument<Int>("slotId")?.toInt()
-
-                createBannerAd(slotId, result)
-            }
             METHOD_LOAD -> {
                 val id = call.arguments.toString()
                 load(result, id)
