@@ -1,7 +1,6 @@
 package ru.innim.my_target_flutter
 
 import android.content.Context
-import android.view.View
 import com.my.target.ads.BaseInterstitialAd
 import com.my.target.ads.InterstitialAd as InterstitialAd
 import com.my.target.ads.RewardedAd as RewardedAd
@@ -17,7 +16,6 @@ class MethodCallHandler(private val context: Context, private val adEventHandler
         private const val METHOD_INITIAL = "initialize"
         private const val METHOD_CREATE_INTERSTITIAL_AD = "createInterstitialAd"
         private const val METHOD_CREATE_REWARDED_AD = "createRewardedAd"
-        private const val METHOD_CREATE_BANNER_AD = "createBannerAd"
         private const val METHOD_LOAD = "load"
         private const val METHOD_SHOW = "show"
         private const val ERROR_CODE_INVALID_ARGS = "INVALID_ARGS"
@@ -84,13 +82,6 @@ class MethodCallHandler(private val context: Context, private val adEventHandler
             ads.add(IndexedAd(interstitialAd, id))
             result.success(id)
         }
-    }
-    private fun createBannerAd(slotId: Int?, result: MethodChannel.Result): View? {
-
-        if (slotId == null) {
-            result.error(ERROR_CODE_INVALID_ARGS, ERROR_MESSAGE_INVALID_ARGS, "slotId: $slotId")
-        } else {}
-        return null
     }
 
     private fun createRewardedAd(slotId: Int?, result: MethodChannel.Result) {
