@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 import 'ad_status_listener.dart';
+import 'ad_types/base_interstitial_ad.dart';
 
 /// Implementing displaying MyTarget ads, currently supported by Interstitial Ads only.
 class MyTargetFlutter {
@@ -12,6 +13,8 @@ class MyTargetFlutter {
 
   static const _methodInitialize = 'initialize';
   static const _methodCreateInterstitialAd = 'createInterstitialAd';
+  static const _methodCreateRewardedAd = 'createRewardedAd';
+  static const _methodCreateBannerAd = 'createBannerAd';
   static const _methodLoad = 'load';
   static const _methodShow = 'show';
 
@@ -21,25 +24,23 @@ class MyTargetFlutter {
 
   MyTargetFlutter({required this.isDebug});
 
-  Stream<AdEventMessage> get _adListenStream {
-    return _stream ??= channel
-        .receiveBroadcastStream()
-        .cast<Map<dynamic, dynamic>>()
-        .transform(StreamTransformer.fromHandlers(
-      handleData: (event, sink) {
-        final data = AdEventMessage.fromJson(event.cast<String, dynamic>());
-        sink.add(data);
-      },
-    ));
-  }
+  Stream<AdEventMessage> get adListenStream => _stream ??= channel
+          .receiveBroadcastStream()
+          .cast<Map<dynamic, dynamic>>()
+          .transform(StreamTransformer.fromHandlers(
+        handleData: (event, sink) {
+          final data = AdEventMessage.fromJson(event.cast<String, dynamic>());
+          sink.add(data);
+        },
+      ));
 
   /// Initializing MyTarget ads.
   /// [useDebugMode] enabling debug mode.
   /// Pass the test device ID to [testDevices] if needed.
   /// For full details on test mode see [https://target.my.com/help/partners/mob/debug/en]
   Future<void> initialize({bool? useDebugMode, String? testDevices}) async {
-    await _channel.invokeMethod(_methodInitialize,
-        _getInitialData(useDebugMode ?? isDebug, testDevices));
+    await _channel.invokeMethod(
+        _methodInitialize, _getInitialData(useDebugMode ?? isDebug, testDevices));
   }
 
   /// Create an Interstitial ads with [slotId]
@@ -55,11 +56,37 @@ class MyTargetFlutter {
     }
   }
 
-  Future<void> _load(String uid) async {
+  /// Create an Rewarded ads with [slotId]
+  Future<RewardedAd> createRewardedAd(int slotId) async {
+    final uid = await _channel.invokeMethod<String>(
+      _methodCreateRewardedAd,
+      {'slotId': slotId},
+    );
+    if (uid == null) {
+      throw FlutterError('Can not create Interstitial ad');
+    } else {
+      return RewardedAd(this, uid);
+    }
+  }
+
+  Future<dynamic> createBannerAd(int slotId) async {
+    final uid = await _channel.invokeMethod<String>(
+      _methodCreateBannerAd,
+      {'slotId': slotId},
+    );
+    print('BANNER COMES: $uid');
+    // if (uid == null) {
+    //   throw FlutterError('Can not create Interstitial ad');
+    // } else {
+    //   return RewardedAd(this, uid);
+    // }
+  }
+
+  Future<void> load(String uid) async {
     await _channel.invokeMethod(_methodLoad, uid);
   }
 
-  Future<void> _show(String uid) async {
+  Future<void> show(String uid) async {
     await _channel.invokeMethod(_methodShow, uid);
   }
 
@@ -68,51 +95,5 @@ class MyTargetFlutter {
       'useDebugMode': useDebugMode,
       'testDevices': testDevices,
     };
-  }
-}
-
-class InterstitialAd {
-  final MyTargetFlutter _plugin;
-  final String uid;
-
-  final _listeners = <AdStatusListener>{};
-
-  InterstitialAd(this._plugin, this.uid) {
-    _plugin._adListenStream.listen(_handleMessage);
-  }
-
-  Future<void> _handleMessage(AdEventMessage data) async {
-    if (data.uid == uid) {
-      _listeners.handleEvent(data);
-    }
-  }
-
-  void load() {
-    _plugin._load(uid);
-  }
-
-  void show() {
-    _plugin._show(uid);
-  }
-
-  void addListener(AdStatusListener listener) {
-    _listeners.add(listener);
-  }
-
-  void removeListener(AdStatusListener listener) {
-    _listeners.remove(listener);
-  }
-
-  void clearListeners() {
-    _listeners.clear();
-  }
-}
-
-extension _SetAdStatusListenerExtension on Set<AdStatusListener> {
-  void handleEvent(AdEventMessage data) {
-    var listeners = toList();
-    for (final listener in listeners) {
-      listener.handleEvent(data);
-    }
   }
 }

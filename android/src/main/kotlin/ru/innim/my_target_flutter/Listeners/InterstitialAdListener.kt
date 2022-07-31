@@ -1,9 +1,13 @@
 package ru.innim.my_target_flutter
+
 import com.my.target.ads.InterstitialAd
 
-
-class AdListener(private val adEventHandler: AdEventHandler, private val id: String, private val onDone: (id:String) -> Unit) : InterstitialAd.InterstitialAdListener {
-    companion object{
+class InterstitialAdListener(
+        private val adEventHandler: AdEventHandler,
+        private val id: String,
+        private val onDone: (id: String) -> Unit
+) : InterstitialAd.InterstitialAdListener {
+    companion object {
         private const val ACTION_AD_LOADED = "ad_loaded"
         private const val ACTION_NO_AD = "no_ad"
         private const val ACTION_CLICK_ON_AD = "click_on_ad"
@@ -33,5 +37,4 @@ class AdListener(private val adEventHandler: AdEventHandler, private val id: Str
     override fun onVideoCompleted(ad: InterstitialAd) {
         adEventHandler.sendAdEvent(id, ACTION_AD_VIDEO_COMPLETED)
     }
-
 }

@@ -4,6 +4,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_target_flutter/my_target_flutter.dart';
+import 'package:my_target_flutter_example/tabs/banner_screen.dart';
+import 'package:my_target_flutter_example/tabs/interstitial_screen.dart';
+import 'package:my_target_flutter_example/tabs/rewarded_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,10 +21,10 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   final _plugin = MyTargetFlutter(isDebug: true);
-  InterstitialAd? _ad;
-  var _adStatus = 'not created';
+
+  late final TabController tabController = TabController(vsync: this, length: 3);
 
   @override
   void initState() {
@@ -44,76 +47,17 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: Builder(builder: (context) {
-            return Column(
-              children: [
-                const SizedBox(height: 50),
-                InkWell(
-                    child: const Text('Create AD'),
-                    onTap: () async {
-                      _ad?.clearListeners();
-
-                      final ad = _ad = await _plugin.createInterstitialAd(6896);
-                      final adListener = AdStatusListener(
-                          onAdLoaded: () => _changeAdStatus('Ad loaded'),
-                          onDisplay: () => _changeAdStatus('Ad display'),
-                          onClickOnAD: () => _changeAdStatus('Clicked on ad'),
-                          onVideoCompleted: () =>
-                              _changeAdStatus('Ad video completed'),
-                          onDismiss: () => _changeAdStatus('Ad closed'),
-                          onNoAd: (reason) =>
-                              _changeAdStatus('Ad not loaded: $reason'));
-                      ad.addListener(adListener);
-                      _changeAdStatus('Ad created');
-                    }),
-                const SizedBox(height: 50),
-                InkWell(
-                  child: const Text('Load AD'),
-                  onTap: () async {
-                    if (_ad == null) {
-                      _showError(context, 'Ad not created');
-                    } else {
-                      _ad!.load();
-                    }
-                  },
-                ),
-                const SizedBox(height: 50),
-                InkWell(
-                  child: const Text('Show AD'),
-                  onTap: () async {
-                    if (_ad == null) {
-                      _showError(context, 'Ad not created');
-                    } else {
-                      _ad!.show();
-                    }
-                  },
-                ),
-                const SizedBox(height: 50),
-                Text('Ad status: $_adStatus')
-              ],
-            );
-          }),
-        ),
+        body: TabBarView(controller: tabController, children: [
+          BannerScreen(_plugin),
+          InterstitialScreen(_plugin),
+          RewardedScreen(_plugin),
+        ]),
+        bottomNavigationBar: TabBar(controller: tabController, tabs: const [
+          Tab(text: 'Banner'),
+          Tab(text: 'Interstitial'),
+          Tab(text: 'Rewarded'),
+        ]),
       ),
     );
-  }
-
-  void _showError(BuildContext context, String text) {
-    showDialog(
-      context: context,
-      builder: (builder) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(text),
-        );
-      },
-    );
-  }
-
-  void _changeAdStatus(String status) {
-    setState(() {
-      _adStatus = status;
-    });
   }
 }
