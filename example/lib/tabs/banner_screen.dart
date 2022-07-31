@@ -12,6 +12,10 @@ class BannerScreen extends StatefulWidget {
 class _BannerScreenState extends State<BannerScreen> {
   BannerAd? _ad;
   var _adStatus = 'not created';
+  late final AdStatusListener listener = AdStatusListener.banner(
+      onAdLoaded: () => _changeAdStatus('Ad loaded'),
+      onClickOnAD: () => _changeAdStatus('Clicked on ad'),
+      onNoAd: (reason) => _changeAdStatus('Ad not loaded: $reason'));
 
   @override
   Widget build(BuildContext context) {

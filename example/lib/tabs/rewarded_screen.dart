@@ -64,11 +64,11 @@ class _RewardedScreenState extends State<RewardedScreen> {
       _ad?.clearListeners();
 
       _ad = await widget._plugin.createRewardedAd(45101);
-      final adListener = AdStatusListener(
+      final adListener = AdStatusListener.rewarded(
           onAdLoaded: () => _changeAdStatus('Ad loaded'),
           onDisplay: () => _changeAdStatus('Ad display'),
           onClickOnAD: () => _changeAdStatus('Clicked on ad'),
-          onVideoCompleted: () => _changeAdStatus('Ad video completed'),
+          onReward: () => _changeAdStatus('Ad video completed'),
           onDismiss: () => _changeAdStatus('Ad closed'),
           onNoAd: (reason) => _changeAdStatus('Ad not loaded: $reason'));
       _ad?.addListener(adListener);

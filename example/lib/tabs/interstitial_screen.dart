@@ -64,7 +64,7 @@ class _InterstitialScreenState extends State<InterstitialScreen> {
       _ad?.clearListeners();
 
       final ad = _ad = await widget._plugin.createInterstitialAd(6896);
-      final adListener = AdStatusListener(
+      final adListener = AdStatusListener.interstitial(
           onAdLoaded: () => _changeAdStatus('Ad loaded'),
           onDisplay: () => _changeAdStatus('Ad display'),
           onClickOnAD: () => _changeAdStatus('Clicked on ad'),

@@ -6,9 +6,10 @@ import 'package:my_target_flutter/src/extensions.dart';
 import 'package:my_target_flutter/src/my_target_flutter.dart';
 
 class BannerAd extends StatefulWidget {
-  const BannerAd(this._plugin, this.uid, {Key? key}) : super(key: key);
+  const BannerAd(this._plugin, this.uid, {Key? key, this.listener}) : super(key: key);
   final MyTargetFlutter _plugin;
   final String uid;
+  final AdStatusListener? listener;
 
   @override
   State<BannerAd> createState() => _BannerAdState();
@@ -20,6 +21,7 @@ class _BannerAdState extends State<BannerAd> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
+    if (widget.listener != null) _listeners.add(widget.listener!);
     widget._plugin.adListenStream.listen(_handleMessage);
   }
 
