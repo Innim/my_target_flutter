@@ -29,7 +29,7 @@ class RewardedAdListener(
         adEventHandler.sendAdEvent(id, ACTION_CLICK_ON_AD)
     }
     override fun onReward(reward: Reward, ad: RewardedAd) {
-        adEventHandler.sendAdEvent(id, ACTION_CLICK_ON_AD)
+        adEventHandler.sendAdEvent(id, ACTION_AD_REWARD)
     }
     override fun onDisplay(ad: RewardedAd) {
         adEventHandler.sendAdEvent(id, ACTION_AD_DISPLAY)

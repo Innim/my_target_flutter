@@ -13,7 +13,6 @@ class BannerAd(private val api: AdEventHandler) :
 
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val params = args as Map<String?, Any?>?
-        print(params)
         val id: Int = params?.get("id").toString().toInt()
 
         return Banner(context!!, id, api)

@@ -1,6 +1,6 @@
 name: my_target_flutter
 description: Implementation MyTarget ads SDK.
-version: 0.1.0+2
+version: 0.2.0
 repository: https://github.com/Innim/my_target_flutter
 
 environment:

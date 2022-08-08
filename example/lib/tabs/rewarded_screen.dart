@@ -20,14 +20,7 @@ class _RewardedScreenState extends State<RewardedScreen> {
         return Column(
           children: [
             const SizedBox(height: 50),
-            InkWell(child: const Text('Create AD'), onTap: () async => onTapRewarded(context)
-                //  onTapInterstitial(context),
-                ),
-            const SizedBox(height: 50),
-            InkWell(
-              child: const Text('Load AD'),
-              onTap: () async {},
-            ),
+            InkWell(child: const Text('Create AD'), onTap: () async => onTapRewarded(context)),
             const SizedBox(height: 50),
             InkWell(
               child: const Text('Show AD'),
