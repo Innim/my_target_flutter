@@ -196,14 +196,12 @@ class _BannerAdState extends State<BannerAd> {
       case TargetPlatform.android:
         return AndroidView(
           viewType: viewType,
-          layoutDirection: TextDirection.ltr,
           creationParams: creationParams,
           creationParamsCodec: const StandardMessageCodec(),
         );
       case TargetPlatform.iOS:
         return UiKitView(
           viewType: viewType,
-          layoutDirection: TextDirection.ltr,
           creationParams: creationParams,
           creationParamsCodec: const StandardMessageCodec(),
         );
