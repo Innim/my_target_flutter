@@ -7,11 +7,11 @@ class AdEventHandler : EventChannel.StreamHandler {
 
     fun sendAdEvent(id: String, event: String, data: Map<String, Any?>? = null) {
         sink?.success(
-            mapOf(
-                "uid" to id,
-                "event" to event,
-                "data" to data,
-            )
+                mapOf(
+                        "uid" to id,
+                        "event" to event,
+                        "data" to data,
+                )
         )
     }
 
