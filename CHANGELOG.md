@@ -1,4 +1,8 @@
-## 0.1.0+2
+## 0.1.0+3
+
+* Fix mytracker-sdk get error.
+
+## 0.1.0+2 
 
 * Update dependencies.
 

@@ -48,4 +48,5 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation  'com.my.target:mytarget-sdk:5.15.4'
+    implementation 'com.my.tracker:mytracker-sdk:3.0.10'
 }
