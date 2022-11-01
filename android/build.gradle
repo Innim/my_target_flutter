@@ -48,5 +48,6 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation  'com.my.target:mytarget-sdk:5.15.4'
+    // Workaround: Unable to download from mytarget-sdk due to issues with jcenter.
     implementation 'com.my.tracker:mytracker-sdk:3.0.10'
 }
