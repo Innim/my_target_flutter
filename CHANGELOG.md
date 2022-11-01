@@ -1,4 +1,8 @@
-## 0.1.0+2
+## 0.1.0+3
+
+* **Fixed**: can't download `mytracker-sdk` from jcenter.
+
+## 0.1.0+2 
 
 * Update dependencies.
 
